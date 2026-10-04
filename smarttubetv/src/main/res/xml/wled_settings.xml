@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory android:title="Настройки WLED Ambilight">
+        <SwitchPreference
+            android:key="ambilight_enabled"
+            android:title="Включить синхронизацию с WLED"
+            android:defaultValue="true" />
+
+        <EditTextPreference
+            android:key="wled_ip"
+            android:title="IP адрес ESP32 (WLED)"
+            android:defaultValue="192.168.1.185"
+            app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            android:key="udp_port"
+            android:title="UDP порт"
+            android:defaultValue="4048"
+            app:useSimpleSummaryProvider="true" />
+
+        <ListPreference
+            android:key="capture_mode"
+            android:title="Режим захвата кадра"
+            android:entries="@array/wled_capture_mode_entries"
+            android:entryValues="@array/wled_capture_mode_values"
+            android:defaultValue="auto"
+            app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            android:key="fps"
+            android:title="Ограничение FPS (1-60)"
+            android:defaultValue="30"
+            app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            android:key="brightness"
+            android:title="Яркость подсветки (0-100)"
+            android:defaultValue="100"
+            app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            android:key="smoothing"
+            android:title="Плавность (0-100)"
+            android:defaultValue="50"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="WLED: Геометрия ТВ">
+        <EditTextPreference
+            android:key="leds_top"
+            android:title="Светодиодов сверху"
+            android:defaultValue="54"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:key="leds_bottom"
+            android:title="Светодиодов снизу"
+            android:defaultValue="54"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:key="leds_left"
+            android:title="Светодиодов слева"
+            android:defaultValue="32"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:key="leds_right"
+            android:title="Светодиодов справа"
+            android:defaultValue="32"
+            app:useSimpleSummaryProvider="true" />
+        <ListPreference
+            android:key="direction"
+            android:title="Направление ленты"
+            android:entries="@array/wled_direction_entries"
+            android:entryValues="@array/wled_direction_values"
+            android:defaultValue="0"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:key="led_offset"
+            android:title="Смещение начала ленты (в светодиодах)"
+            android:defaultValue="0"
+            app:useSimpleSummaryProvider="true" />
+        <SwitchPreference
+            android:key="letterbox_detect"
+            android:title="Авто-определение чёрных полос (кино 21:9)"
+            android:summary="Для фильмов, где чёрные полосы вшиты в само видео"
+            android:defaultValue="false" />
+        <EditTextPreference
+            android:key="margin_x"
+            android:title="Отступ захвата X (%)"
+            android:defaultValue="2"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:key="margin_y"
+            android:title="Отступ захвата Y (%)"
+            android:defaultValue="2"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:key="capture_depth"
+            android:title="Глубина зоны захвата (%)"
+            android:defaultValue="5"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="WLED: Цвет">
+        <EditTextPreference
+            android:key="saturation"
+            android:title="Насыщенность цвета (%, 100 = без изменений)"
+            android:defaultValue="115"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:key="gamma"
+            android:title="Гамма (22 = 2.2)"
+            android:defaultValue="22"
+            app:useSimpleSummaryProvider="true" />
+        <SwitchPreference
+            android:key="use_v2"
+            android:title="Гасить тёмные зоны (чёрные полосы)"
+            android:defaultValue="true" />
+        <EditTextPreference
+            android:key="black_threshold"
+            android:title="Порог чёрного (0-255)"
+            android:defaultValue="15"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+</PreferenceScreen>

@@ -208,6 +208,14 @@
         <!-- BEGIN Launchers (used inside tvQuickActions. Don't rename them or move!) -->
 
         <activity
+            android:name="com.liskovsoft.smartyoutubetv2.tv.ui.playback.ambilight.WledSettingsActivity"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|layoutDirection"
+            android:screenOrientation="unspecified"
+            android:theme="@style/App.Theme.WledSettings"/>
+
+        <activity
             android:name="com.liskovsoft.smartyoutubetv2.tv.launchers.HomeLauncherActivity"
             android:logo="@drawable/icon_home"
             android:icon="@drawable/icon_home"

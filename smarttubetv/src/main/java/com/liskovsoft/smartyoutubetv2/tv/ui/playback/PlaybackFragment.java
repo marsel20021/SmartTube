@@ -10,6 +10,8 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
+import android.view.SurfaceView;
+import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
@@ -30,6 +32,7 @@ import androidx.leanback.widget.Presenter;
 import androidx.leanback.widget.Row;
 import androidx.leanback.widget.RowPresenter;
 import androidx.leanback.widget.RowPresenter.ViewHolder;
+import androidx.preference.PreferenceManager;
 
 import com.github.vkay94.dtpv.DoubleTapPlayerAdapter;
 import com.github.vkay94.dtpv.DoubleTapPlayerView;
@@ -77,6 +80,7 @@ import com.liskovsoft.smartyoutubetv2.tv.ui.common.LeanbackActivity;
 import com.liskovsoft.smartyoutubetv2.tv.ui.common.UriBackgroundManager;
 import com.liskovsoft.smartyoutubetv2.tv.ui.mod.leanback.misc.ProgressBarManager;
 import com.liskovsoft.smartyoutubetv2.tv.ui.mod.leanback.playerglue.tweaks.PlaybackTransportRowPresenter;
+import com.liskovsoft.smartyoutubetv2.tv.ui.playback.ambilight.AmbilightController;
 import com.liskovsoft.smartyoutubetv2.tv.ui.playback.mod.SeekModePlaybackFragment;
 import com.liskovsoft.smartyoutubetv2.tv.ui.playback.mod.surface.SurfacePlaybackFragmentGlueHost;
 import com.liskovsoft.smartyoutubetv2.tv.ui.playback.other.BackboneQueueNavigator;
@@ -126,6 +130,9 @@ public class PlaybackFragment extends SeekModePlaybackFragment implements Playba
     private Video mPendingFocus;
     private String mSelectedVideoId;
 
+    // Переменная WLED
+    private AmbilightController mAmbilightController;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(null); // trying to fix bug with presets
@@ -172,7 +179,46 @@ public class PlaybackFragment extends SeekModePlaybackFragment implements Playba
         // ProgressBar.setRootView already called at this moment.
         ProgressBarManager.setup(getProgressBarManager(), (ViewGroup) root);
 
+        // Внедрение WLED
+        if (mAmbilightController == null) {
+            PreferenceManager.setDefaultValues(getContext(), R.xml.wled_settings, false);
+            mAmbilightController = new AmbilightController(getActivity(), PreferenceManager.getDefaultSharedPreferences(getContext()));
+            mAmbilightController.start();
+        }
+
+        // Динамически ищем экраны
+        SurfaceView surfaceView = findSurfaceView(root);
+        TextureView textureView = findTextureView(root); // если вы добавите его в разметку
+        mAmbilightController.attachViews(surfaceView, textureView);
+        // По умолчанию считаем, что активен Surface (так устроено в SmartTube)
+        mAmbilightController.setSurfaceActive(true);
+
         return root;
+    }
+
+    // Вспомогательные функции для рекурсивного поиска SurfaceView и TextureView в иерархии View
+    private SurfaceView findSurfaceView(View view) {
+        if (view instanceof SurfaceView) return (SurfaceView) view;
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                SurfaceView sv = findSurfaceView(group.getChildAt(i));
+                if (sv != null) return sv;
+            }
+        }
+        return null;
+    }
+
+    private TextureView findTextureView(View view) {
+        if (view instanceof TextureView) return (TextureView) view;
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                TextureView tv = findTextureView(group.getChildAt(i));
+                if (tv != null) return tv;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -574,35 +620,35 @@ public class PlaybackFragment extends SeekModePlaybackFragment implements Playba
                 .playerView(mDoubleTapPlayerAdapter)
                 .seekSeconds(getPlayerData().getSeekIncrementMs() / 1_000)
                 .performListener(new PerformListener() {
-            @Override
-            public void onAnimationStart() {
-                mYouTubeOverlay.setVisibility(View.VISIBLE);
-            }
+                    @Override
+                    public void onAnimationStart() {
+                        mYouTubeOverlay.setVisibility(View.VISIBLE);
+                    }
 
-            @Override
-            public void onAnimationEnd() {
-                mYouTubeOverlay.setVisibility(View.GONE);
-            }
+                    @Override
+                    public void onAnimationEnd() {
+                        mYouTubeOverlay.setVisibility(View.GONE);
+                    }
 
-            @Override
-            public Boolean shouldForward(@NonNull Player player, @NonNull DoubleTapPlayerView playerView, float posX) {
-                if (player.getPlaybackState() == PlaybackState.STATE_ERROR ||
-                        player.getPlaybackState() == PlaybackState.STATE_NONE ||
-                        player.getPlaybackState() == PlaybackState.STATE_STOPPED) {
+                    @Override
+                    public Boolean shouldForward(@NonNull Player player, @NonNull DoubleTapPlayerView playerView, float posX) {
+                        if (player.getPlaybackState() == PlaybackState.STATE_ERROR ||
+                                player.getPlaybackState() == PlaybackState.STATE_NONE ||
+                                player.getPlaybackState() == PlaybackState.STATE_STOPPED) {
 
-                    playerView.cancelInDoubleTapMode();
-                    return false;
-                }
+                            playerView.cancelInDoubleTapMode();
+                            return false;
+                        }
 
-                if (player.getCurrentPosition() > 500 && posX < playerView.getPlayerWidth() * 0.35)
-                    return false;
+                        if (player.getCurrentPosition() > 500 && posX < playerView.getPlayerWidth() * 0.35)
+                            return false;
 
-                if (player.getCurrentPosition() < player.getDuration() && posX > playerView.getPlayerWidth() * 0.65)
-                    return true;
+                        if (player.getCurrentPosition() < player.getDuration() && posX > playerView.getPlayerWidth() * 0.65)
+                            return true;
 
-                return false;
-            }
-        });
+                        return false;
+                    }
+                });
     }
 
     private void createMediaSession() {
@@ -1009,6 +1055,19 @@ public class PlaybackFragment extends SeekModePlaybackFragment implements Playba
     @Override
     public void setPlayWhenReady(boolean play) {
         mExoPlayerController.setPlayWhenReady(play);
+
+        // Передаем данные о формате WLED (вытаскиваем из ExoPlayerController)
+        if (mAmbilightController != null) {
+            mAmbilightController.setPlaying(play);
+
+            FormatItem videoFormat = mExoPlayerController.getVideoFormat();
+            if (videoFormat != null) {
+                mAmbilightController.setVideoWidth(videoFormat.getWidth());
+                mAmbilightController.setVideoHeight(videoFormat.getHeight());
+                // Простая проверка на HDR (часто есть в названии формата в SmartTube)
+                mAmbilightController.setHdrContent(String.valueOf(videoFormat).toLowerCase().contains("hdr"));
+            }
+        }
     }
 
     @Override
@@ -1166,6 +1225,12 @@ public class PlaybackFragment extends SeekModePlaybackFragment implements Playba
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        // Очистка WLED контроллера при закрытии плеера
+        if (mAmbilightController != null) {
+            mAmbilightController.release();
+            mAmbilightController = null;
+        }
 
         Log.d(TAG, "Destroying PlaybackFragment...");
 

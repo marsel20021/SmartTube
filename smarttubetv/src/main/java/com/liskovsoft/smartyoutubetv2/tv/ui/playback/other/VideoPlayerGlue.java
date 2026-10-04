@@ -59,6 +59,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import com.liskovsoft.smartyoutubetv2.tv.ui.playback.actions.AmbilightAction;
+
 /**
  * Manages customizing the actions in the {@link PlaybackControlsRow}. Adds and manages the
  * following actions to the primary and secondary controls:
@@ -134,6 +136,7 @@ public class VideoPlayerGlue extends MaxControlsVideoPlayerGlue<PlayerAdapter> i
         putAction(new RotateAction(context));
         putAction(new FlipAction(context));
         putAction(new SoundOffAction(context));
+        putAction(new AmbilightAction(context));
     }
 
     @Override
@@ -203,6 +206,8 @@ public class VideoPlayerGlue extends MaxControlsVideoPlayerGlue<PlayerAdapter> i
         // MAX: 7 items. But with custom modification it supports more.
         // Origin: {@link androidx.leanback.widget.ControlBarPresenter#MAX_CONTROLS}
         // Custom mod: {@link com.liskovsoft.smartyoutubetv2.tv.ui.mod.leanback.playerglue.ControlBarPresenter#MAX_CONTROLS}
+
+        adapter.add(mActions.get(R.id.action_wled));
 
         if (mPlayerTweaksData.isPlayerButtonEnabled(PlayerTweaksData.PLAYER_BUTTON_HIGH_QUALITY)) {
             adapter.add(mActions.get(R.id.lb_control_high_quality));

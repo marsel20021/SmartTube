@@ -34,6 +34,8 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.liskovsoft.smartyoutubetv2.common.app.models.playback.controllers.AmbilightControllerUi;
+
 public class PlaybackPresenter extends BasePresenter<PlaybackView> implements PlayerEventListener {
     private static final String TAG = PlaybackPresenter.class.getSimpleName();
     @SuppressLint("StaticFieldLeak")
@@ -66,6 +68,7 @@ public class PlaybackPresenter extends BasePresenter<PlaybackView> implements Pl
         mEventListeners.add(new HQDialogController());
         mEventListeners.add(new ChatController());
         mEventListeners.add(new CommentsController());
+        mEventListeners.add(new AmbilightControllerUi());
     }
 
     public static PlaybackPresenter instance(Context context) {

@@ -23,6 +23,7 @@ buildscript {
 }
 
 apply plugin: 'com.android.application'
+apply plugin: 'org.jetbrains.kotlin.android'
 
 def keystorePropertiesFile = rootProject.file("keystore.properties")
 def keystoreProperties = new Properties()
@@ -51,7 +52,7 @@ android {
     buildToolsVersion project.properties.buildToolsVersion
     testOptions.unitTests.includeAndroidResources = true
     ndkVersion "21.0.6113669" // reduce size of the *.so files (stripping debug symbols)
-    
+
     defaultConfig {
         // values linked with applicationId: searchable.searchSuggestAuthority, searchable.searchSuggestIntentData, VideoContract.CONTENT_AUTHORITY
         applicationId "app.smarttube"
@@ -98,7 +99,7 @@ android {
             }
         }
     }
-    
+
     buildTypes {
         release {
             // Enable minification
@@ -178,9 +179,13 @@ android {
             }
         }
     }
+    kotlinOptions {
+        jvmTarget = '17'
+    }
 }
 
 dependencies {
+    implementation 'androidx.core:core-ktx:1.19.1'
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
     implementation 'androidx.leanback:leanback:' + leanbackXVersion
